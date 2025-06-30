@@ -192,3 +192,7 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# bun install node_modules
+visual-frontend-builder/node_modules/
+visual-frontend-builder/apps/frontend/.next/
