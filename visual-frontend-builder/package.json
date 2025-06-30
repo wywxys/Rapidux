@@ -1,0 +1,34 @@
+{
+  "name": "@visual-builder/monorepo",
+  "version": "1.0.0",
+  "description": "Visual Frontend Builder - AI-powered React/Next.js component generator with visual editing",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter @visual-builder/frontend dev",
+    "build": "bun --filter @visual-builder/frontend build",
+    "start": "bun --filter @visual-builder/frontend start",
+    "backend": "bun --filter @visual-builder/backend dev",
+    "ai": "bun --filter @visual-builder/ai-service dev",
+    "docker:up": "docker compose up",
+    "docker:build": "docker compose build",
+    "docker:down": "docker compose down",
+    "db:setup": "bun --filter @visual-builder/db setup",
+    "db:migrate": "bun --filter @visual-builder/db migrate",
+    "db:seed": "bun --filter @visual-builder/db seed",
+    "clean": "bun --filter '*' clean",
+    "typecheck": "bun --filter '*' typecheck",
+    "lint": "bun --filter '*' lint",
+    "format": "bun --filter '*' format"
+  },
+  "devDependencies": {
+    "bun": "^1.2.13",
+    "typescript": "^5.8.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  },
+  "packageManager": "bun@1.2.13"
+}

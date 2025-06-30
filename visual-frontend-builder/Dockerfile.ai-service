@@ -1,0 +1,32 @@
+# AI Service Dockerfile
+FROM oven/bun:1.2.13-alpine AS base
+WORKDIR /app
+
+# Install dependencies
+FROM base AS deps
+COPY packages/ai/package.json ./packages/ai/
+RUN cd packages/ai && bun install --frozen-lockfile
+
+# Build the source code
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY packages/ai ./packages/ai
+WORKDIR /app/packages/ai
+RUN bun run build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+# Copy built application
+COPY --from=builder /app/packages/ai/dist ./dist
+COPY --from=deps /app/node_modules ./node_modules
+
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 bunjs
+USER bunjs
+
+EXPOSE 8000
+
+CMD ["bun", "dist/server.js"]

@@ -1,0 +1,29 @@
+{
+  "name": "@visual-builder/db",
+  "version": "1.0.0",
+  "description": "Database schema and utilities",
+  "main": "./src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup": "bun src/setup.ts",
+    "migrate": "drizzle-kit migrate",
+    "seed": "bun src/seed.ts",
+    "studio": "drizzle-kit studio",
+    "generate": "drizzle-kit generate",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf node_modules dist"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.43.1",
+    "drizzle-zod": "^0.7.1",
+    "better-sqlite3": "^11.5.0",
+    "@paralleldrive/cuid2": "^2.2.2"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.1",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.2"
+  }
+}
