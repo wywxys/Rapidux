@@ -194,5 +194,6 @@ cython_debug/
 .cursorindexingignore
 
 # bun install node_modules
-visual-frontend-builder/node_modules/
-visual-frontend-builder/apps/frontend/.next/
+node_modules
+.next
+.bun
