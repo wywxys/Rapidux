@@ -1,4 +1,4 @@
-import { AIComponentGenerator } from "@/components/ai-component-generator";
+import { AIComponentGenerator } from '@/components/ai-generator';
 
 export default function Home() {
   return <AIComponentGenerator />;

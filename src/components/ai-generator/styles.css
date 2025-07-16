@@ -1,0 +1,18 @@
+/* Layer selection styles */
+.layer-item {
+  transition: all 0.2s ease;
+}
+
+.layer-selected {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.layer-selected-child {
+  background: hsl(var(--primary) / 0.1);
+  border-left: 2px solid hsl(var(--primary));
+}
+
+.layer-item:hover:not(.layer-selected) {
+  background: hsl(var(--accent));
+}
