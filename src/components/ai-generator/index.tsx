@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { Header } from './header';
@@ -8,12 +9,67 @@ import { Canvas } from './canvas';
 import { RightSidebar } from './sidebar-right';
 import { FloatingToolbar } from './floating-toolbar';
 import { AIInput } from './floating-toolbar/ai-input';
-import { CodeViewerDialog } from './dialogs/code-viewer';
+import { CodeViewerDialog } from './dialogs/code-viewer-dialog';
 import { useAIGenerator } from './hooks/use-ai-generator';
 import './styles.css';
 
 export function AIComponentGenerator() {
   const state = useAIGenerator();
+
+  // 添加快捷键监听
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // 检测Mac系统
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifierKey = isMac ? event.metaKey : event.ctrlKey;
+      
+      // Ctrl/Cmd+S - 保存
+      if (modifierKey && event.key === 's') {
+        event.preventDefault();
+        state.saveCanvasChanges();
+      }
+      // Ctrl/Cmd+Z - 撤销
+      else if (modifierKey && event.key === 'z') {
+        event.preventDefault();
+        state.undoAction();
+      }
+      // Ctrl/Cmd+Y - 重做
+      else if (modifierKey && event.key === 'y') {
+        event.preventDefault();
+        state.redoAction();
+      }
+      // F5 - 刷新
+      else if (event.key === 'F5') {
+        event.preventDefault();
+        state.refreshPage();
+      }
+      // Ctrl/Cmd+I - 打开/关闭对话
+      else if (modifierKey && event.key === 'i') {
+        event.preventDefault();
+        state.openConversation();
+      }
+      // Ctrl/Cmd+/ - 切换快捷键提示
+      else if (modifierKey && event.key === '/') {
+        event.preventDefault();
+        state.setShowShortcutsDialog(!state.showShortcutsDialog);
+      }
+      // Ctrl/Cmd+, - 切换设置页面
+      else if (modifierKey && event.key === ',') {
+        event.preventDefault();
+        state.setShowSettingsSheet(!state.showSettingsSheet);
+      }
+      // Esc - 关闭对话框
+      else if (event.key === 'Escape') {
+        state.setShowShortcutsDialog(false);
+        state.setShowSettingsSheet(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [state]);
 
   return (
     <TooltipProvider>
@@ -22,12 +78,22 @@ export function AIComponentGenerator() {
         <Header
           showSettingsSheet={state.showSettingsSheet}
           setShowSettingsSheet={state.setShowSettingsSheet}
+          showShortcutsDialog={state.showShortcutsDialog}
+          setShowShortcutsDialog={state.setShowShortcutsDialog}
           autoSaveCode={state.autoSaveCode}
           setAutoSaveCode={state.setAutoSaveCode}
           showLineNumbers={state.showLineNumbers}
           setShowLineNumbers={state.setShowLineNumbers}
           enableCodeFormatting={state.enableCodeFormatting}
           setEnableCodeFormatting={state.setEnableCodeFormatting}
+          includeImports={state.includeImports}
+          setIncludeImports={state.setIncludeImports}
+          enableAutoComplete={state.enableAutoComplete}
+          setEnableAutoComplete={state.setEnableAutoComplete}
+          enableTypeChecking={state.enableTypeChecking}
+          setEnableTypeChecking={state.setEnableTypeChecking}
+          enablePrettierOnSave={state.enablePrettierOnSave}
+          setEnablePrettierOnSave={state.setEnablePrettierOnSave}
           saveSettings={state.saveSettings}
         />
 
@@ -39,6 +105,8 @@ export function AIComponentGenerator() {
             setActiveTab={state.setActiveTab}
             selectedPage={state.selectedPage}
             setSelectedPage={state.setSelectedPage}
+            selectedComponent={state.selectedComponent}
+            setSelectedComponent={state.setSelectedComponent}
             selectedLayer={state.selectedLayer}
             setSelectedLayer={state.setSelectedLayer}
           />
@@ -52,6 +120,7 @@ export function AIComponentGenerator() {
           {/* Right Sidebar - Properties */}
           <RightSidebar
             selectedPage={state.selectedPage}
+            selectedComponent={state.selectedComponent}
             selectedLayer={state.selectedLayer}
             rightPanelTab={state.rightPanelTab}
             setRightPanelTab={state.setRightPanelTab}
@@ -83,13 +152,20 @@ export function AIComponentGenerator() {
           setViewMode={state.setViewMode}
           showTopBar={state.showTopBar}
           setShowTopBar={state.setShowTopBar}
+          undoAction={state.undoAction}
+          redoAction={state.redoAction}
+          refreshPage={state.refreshPage}
         />
 
         {/* Code Viewer Dialog */}
         <CodeViewerDialog
-          showCodeDialog={state.showCodeDialog}
-          setShowCodeDialog={state.setShowCodeDialog}
-          generatedCode={state.generatedCode}
+          open={state.showCodeDialog}
+          onOpenChange={state.setShowCodeDialog}
+          title="Generated Code"
+          code={state.generatedCode}
+          language="jsx"
+          description="View and copy the generated code for your component"
+          showIcon={true}
         />
 
         {/* Toast Notifications */}

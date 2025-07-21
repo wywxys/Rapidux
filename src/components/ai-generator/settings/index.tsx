@@ -14,6 +14,14 @@ interface SettingsSheetProps {
   setShowLineNumbers: (show: boolean) => void;
   enableCodeFormatting: boolean;
   setEnableCodeFormatting: (enable: boolean) => void;
+  includeImports: boolean;
+  setIncludeImports: (include: boolean) => void;
+  enableAutoComplete: boolean;
+  setEnableAutoComplete: (enable: boolean) => void;
+  enableTypeChecking: boolean;
+  setEnableTypeChecking: (enable: boolean) => void;
+  enablePrettierOnSave: boolean;
+  setEnablePrettierOnSave: (enable: boolean) => void;
   saveSettings: () => void;
 }
 
@@ -24,6 +32,14 @@ export function SettingsSheet({
   setShowLineNumbers,
   enableCodeFormatting,
   setEnableCodeFormatting,
+  includeImports,
+  setIncludeImports,
+  enableAutoComplete,
+  setEnableAutoComplete,
+  enableTypeChecking,
+  setEnableTypeChecking,
+  enablePrettierOnSave,
+  setEnablePrettierOnSave,
   saveSettings,
 }: SettingsSheetProps) {
   return (
@@ -154,6 +170,34 @@ export function SettingsSheet({
               </div>
             </div>
 
+            {/* Developer Settings */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Developer Settings</label>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-muted-foreground">Enable auto-complete</label>
+                  <Switch
+                    checked={enableAutoComplete}
+                    onCheckedChange={setEnableAutoComplete}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-muted-foreground">Enable type checking</label>
+                  <Switch
+                    checked={enableTypeChecking}
+                    onCheckedChange={setEnableTypeChecking}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-muted-foreground">Prettier on save</label>
+                  <Switch
+                    checked={enablePrettierOnSave}
+                    onCheckedChange={setEnablePrettierOnSave}
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Export Settings */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Export Settings</label>
@@ -173,9 +217,10 @@ export function SettingsSheet({
                 </div>
                 <div className="flex items-center justify-between">
                   <label className="text-xs text-muted-foreground">Include imports</label>
-                  <Button variant="outline" size="sm">
-                    ON
-                  </Button>
+                  <Switch
+                    checked={includeImports}
+                    onCheckedChange={setIncludeImports}
+                  />
                 </div>
               </div>
             </div>

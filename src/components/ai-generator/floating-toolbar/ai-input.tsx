@@ -1,6 +1,7 @@
-import { Search, Image, Download, Play } from 'lucide-react';
+import { Search, Image, Download, Play, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useRef, useState, useEffect } from 'react';
 import { AiMode } from '../types';
 
 interface AIInputProps {
@@ -22,11 +23,56 @@ export function AIInput({
   isGenerating,
   handleGenerate,
 }: AIInputProps) {
-  if (!showTopBar) return null;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<{ file: File; preview: string } | null>(null);
+  const [animationClass, setAnimationClass] = useState('');
+
+  // 处理动画状态
+  useEffect(() => {
+    if (showTopBar) {
+      setAnimationClass('ai-input-enter');
+    } else {
+      setAnimationClass('ai-input-exit');
+      // 延迟隐藏组件，让退出动画播放完成
+      const timer = setTimeout(() => {
+        setAnimationClass('');
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [showTopBar]);
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      // 创建预览 URL
+      const previewUrl = URL.createObjectURL(file);
+      setSelectedImage({ file, preview: previewUrl });
+      console.log('Selected image:', file.name);
+    }
+  };
+
+  const removeImage = () => {
+    if (selectedImage) {
+      URL.revokeObjectURL(selectedImage.preview);
+      setSelectedImage(null);
+    }
+    // 清空文件输入
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  if (!showTopBar && !animationClass.includes('exit')) return null;
 
   return (
     <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="w-[600px] max-w-[85vw] shadow-xl border bg-card/95 backdrop-blur-md rounded-lg p-4">
+      <div 
+        className={`w-[600px] max-w-[85vw] shadow-xl border bg-card/95 backdrop-blur-md rounded-lg p-4 ${animationClass}`}
+      >
         <div className="space-y-3">
           {/* Input Field */}
           <div className="flex items-center space-x-3">
@@ -75,10 +121,24 @@ export function AIInput({
               </div>
             
               {/* Add Photo Button */}
-              <Button variant="outline" size="sm" className="gap-1.5 h-7 px-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1.5 h-7 px-2"
+                onClick={handlePhotoClick}
+              >
                 <Image className="h-3.5 w-3.5" />
                 <span className="text-xs">Photo</span>
               </Button>
+              
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
               
               {/* Import from Figma Button */}
               <Button variant="outline" size="sm" className="gap-1.5 h-7 px-2">
@@ -109,6 +169,35 @@ export function AIInput({
               </Button>
             </div>
           </div>
+          
+          {/* Image Preview */}
+          {selectedImage && (
+            <div className="border rounded-md p-2 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <img
+                    src={selectedImage.preview}
+                    alt="Selected image"
+                    className="w-16 h-16 object-cover rounded border"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-background border shadow-sm hover:bg-destructive hover:text-destructive-foreground"
+                    onClick={removeImage}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{selectedImage.file.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(selectedImage.file.size / 1024).toFixed(1)} KB
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

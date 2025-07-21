@@ -1,18 +1,144 @@
 /* Layer selection styles */
 .layer-item {
   transition: all 0.2s ease;
+  border-radius: 6px;
+  box-sizing: border-box;
+  /* 预留边框空间，避免布局移动 */
+  border: 2px solid transparent;
 }
 
+/* AI输入栏动画样式 */
+.ai-input-enter {
+  animation: aiInputSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.ai-input-exit {
+  animation: aiInputSlideDown 0.3s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
+}
+
+@keyframes aiInputSlideUp {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes aiInputSlideDown {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(15px);
+  }
+}
+
+/* 主选中层样式 - 明显的灰色高亮背景 */
 .layer-selected {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  /* 明亮模式：优雅的中性灰 */
+  background: hsl(210, 10%, 85%) !important;
+  color: hsl(210, 15%, 25%) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  border: 2px solid hsl(210, 12%, 70%) !important;
+  box-sizing: border-box !important;
 }
 
+/* 选中层的子元素样式 - 浅灰色背景，无边框 */
 .layer-selected-child {
-  background: hsl(var(--primary) / 0.1);
-  border-left: 2px solid hsl(var(--primary));
+  /* 明亮模式：柔和的浅灰 */
+  background: hsl(210, 8%, 94%) !important;
+  color: hsl(210, 10%, 35%) !important;
+  border-radius: 6px !important;
+  border: 2px solid transparent !important;
+  box-sizing: border-box !important;
 }
 
-.layer-item:hover:not(.layer-selected) {
+/* 暗黑模式下的样式 */
+@media (prefers-color-scheme: dark) {
+  .layer-selected {
+    /* 暗黑模式选中层：温暖的深灰 */
+    background: hsl(215, 8%, 35%) !important;
+    color: hsl(215, 20%, 95%) !important;
+    border: 2px solid hsl(215, 12%, 45%) !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .layer-selected-child {
+    /* 暗黑模式子层：柔和的深灰，无边框 */
+    background: hsl(215, 6%, 25%) !important;
+    color: hsl(215, 15%, 85%) !important;
+    border: 2px solid transparent !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* 使用CSS变量的方式支持主题切换 */
+.dark .layer-selected {
+  background: hsl(215, 8%, 35%) !important;
+  color: hsl(215, 20%, 95%) !important;
+  border: 2px solid hsl(215, 12%, 45%) !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .layer-selected-child {
+  background: hsl(215, 6%, 25%) !important;
+  color: hsl(215, 15%, 85%) !important;
+  border: 2px solid transparent !important;
+  box-sizing: border-box !important;
+}
+
+/* 悬停效果 */
+.layer-item:hover:not(.layer-selected):not(.layer-selected-child) {
   background: hsl(var(--accent));
+}
+
+.layer-selected:hover {
+  /* 明亮模式悬停：稍微深一点的灰色 */
+  background: hsl(0, 0%, 70%);
+}
+
+.layer-selected-child:hover {
+  /* 明亮模式悬停：稍微深一点的灰色 */
+  background: hsl(0, 0%, 88%);
+}
+
+.dark .layer-selected:hover {
+  /* 暗黑模式悬停：稍微亮一点的灰色 */
+  background: hsl(0, 0%, 50%);
+}
+
+.dark .layer-selected-child:hover {
+  /* 暗黑模式悬停：稍微亮一点的灰色 */
+  background: hsl(0, 0%, 30%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .layer-selected:hover {
+    background: hsl(0, 0%, 50%);
+  }
+  
+  .layer-selected-child:hover {
+    background: hsl(0, 0%, 30%);
+  }
+}
+
+/* 选中状态下的图标颜色 */
+.layer-selected .lucide {
+  color: hsl(var(--foreground));
+}
+
+.layer-selected-child .lucide {
+  color: hsl(var(--foreground));
 }

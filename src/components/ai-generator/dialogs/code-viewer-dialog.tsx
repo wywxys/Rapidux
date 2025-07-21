@@ -1,9 +1,9 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Code } from 'lucide-react';
 import { useState } from 'react';
 
 interface CodeViewerDialogProps {
@@ -12,6 +12,8 @@ interface CodeViewerDialogProps {
   title: string;
   code: string;
   language?: string;
+  description?: string;
+  showIcon?: boolean;
 }
 
 export function CodeViewerDialog({
@@ -19,7 +21,9 @@ export function CodeViewerDialog({
   onOpenChange,
   title,
   code,
-  language = 'css'
+  language = 'css',
+  description,
+  showIcon = false
 }: CodeViewerDialogProps) {
   const [copied, setCopied] = useState(false);
 
@@ -35,10 +39,20 @@ export function CodeViewerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent 
+        className="w-[60svw] max-w-none max-h-[80vh] flex flex-col"
+        style={{ 
+          width: '60svw',
+          maxWidth: 'none',
+          maxHeight: '80vh'
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between pr-6">
-            <span>{title}</span>
+            <div className="flex items-center gap-2">
+              {showIcon && <Code className="h-5 w-5" />}
+              <span>{title}</span>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -58,13 +72,20 @@ export function CodeViewerDialog({
               )}
             </Button>
           </DialogTitle>
+          {description && (
+            <DialogDescription>
+              {description}
+            </DialogDescription>
+          )}
         </DialogHeader>
-        <ScrollArea className="h-[400px] w-full">
-          <pre className="bg-muted p-4 rounded-md text-sm whitespace-pre">
-            <code className={`language-${language}`}>{code}</code>
-          </pre>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <pre className="bg-muted p-4 rounded-md text-sm font-mono whitespace-pre">
+              <code className={`language-${language}`}>{code}</code>
+            </pre>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

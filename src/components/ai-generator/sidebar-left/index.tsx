@@ -10,6 +10,8 @@ interface LeftSidebarProps {
   setActiveTab: (tab: ActiveTab) => void;
   selectedPage: string;
   setSelectedPage: (page: string) => void;
+  selectedComponent: string;
+  setSelectedComponent: (component: string) => void;
   selectedLayer: string;
   setSelectedLayer: (layer: string) => void;
 }
@@ -19,6 +21,8 @@ export function LeftSidebar({
   setActiveTab,
   selectedPage,
   setSelectedPage,
+  selectedComponent,
+  setSelectedComponent,
   selectedLayer,
   setSelectedLayer,
 }: LeftSidebarProps) {
@@ -54,6 +58,8 @@ export function LeftSidebar({
             <FilesTab
               selectedPage={selectedPage}
               setSelectedPage={setSelectedPage}
+              selectedComponent={selectedComponent}
+              setSelectedComponent={setSelectedComponent}
               setSelectedLayer={setSelectedLayer}
             />
           ) : (
@@ -61,6 +67,8 @@ export function LeftSidebar({
               selectedLayer={selectedLayer}
               setSelectedLayer={setSelectedLayer}
               setSelectedPage={setSelectedPage}
+              setSelectedComponent={setSelectedComponent}
+              selectedPage={selectedPage}
             />
           )}
         </div>

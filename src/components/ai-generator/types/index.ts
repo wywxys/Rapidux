@@ -34,6 +34,10 @@ export interface SettingsState {
   autoSaveCode: boolean;
   showLineNumbers: boolean;
   enableCodeFormatting: boolean;
+  includeImports: boolean;
+  enableAutoComplete: boolean;
+  enableTypeChecking: boolean;
+  enablePrettierOnSave: boolean;
 }
 
 // 主要状态类型
@@ -49,17 +53,23 @@ export interface AIGeneratorState {
   selectedLayer: string;
   aiMode: AiMode;
   selectedPage: string;
+  selectedComponent: string;  // 新增：选中的组件
   rightPanelTab: RightPanelTab;
   layoutType: LayoutType;
   flexDirection: FlexDirection;
   showCodeDialog: boolean;
   showSettingsSheet: boolean;
+  showShortcutsDialog: boolean;
   components: ComponentData[];
   
   // 设置相关状态
   autoSaveCode: boolean;
   showLineNumbers: boolean;
   enableCodeFormatting: boolean;
+  includeImports: boolean;
+  enableAutoComplete: boolean;
+  enableTypeChecking: boolean;
+  enablePrettierOnSave: boolean;
   previousSettings: SettingsState;
 }
 
@@ -76,23 +86,34 @@ export interface AIGeneratorActions {
   setSelectedLayer: (layer: string) => void;
   setAiMode: (mode: AiMode) => void;
   setSelectedPage: (page: string) => void;
+  setSelectedComponent: (component: string) => void;  // 新增：设置选中的组件
   setRightPanelTab: (tab: RightPanelTab) => void;
   setLayoutType: (type: LayoutType) => void;
   setFlexDirection: (direction: FlexDirection) => void;
   setShowCodeDialog: (show: boolean) => void;
   setShowSettingsSheet: (show: boolean) => void;
+  setShowShortcutsDialog: (show: boolean) => void;
   setComponents: (components: ComponentData[]) => void;
   
   // 设置相关操作
   setAutoSaveCode: (auto: boolean) => void;
   setShowLineNumbers: (show: boolean) => void;
   setEnableCodeFormatting: (enable: boolean) => void;
+  setIncludeImports: (include: boolean) => void;
+  setEnableAutoComplete: (enable: boolean) => void;
+  setEnableTypeChecking: (enable: boolean) => void;
+  setEnablePrettierOnSave: (enable: boolean) => void;
   setPreviousSettings: (settings: SettingsState) => void;
   
   // 复杂操作
   handleGenerate: () => Promise<void>;
   copyCode: () => void;
   saveSettings: () => void;
+  saveCanvasChanges: () => void;
+  undoAction: () => void;
+  redoAction: () => void;
+  refreshPage: () => void;
+  openConversation: () => void;
   undoSettings: () => void;
 }
 

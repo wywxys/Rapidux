@@ -7,6 +7,9 @@ interface FloatingToolbarProps {
   setViewMode: (mode: ViewMode) => void;
   showTopBar: boolean;
   setShowTopBar: (show: boolean) => void;
+  undoAction: () => void;
+  redoAction: () => void;
+  refreshPage: () => void;
 }
 
 export function FloatingToolbar({
@@ -14,17 +17,30 @@ export function FloatingToolbar({
   setViewMode,
   showTopBar,
   setShowTopBar,
+  undoAction,
+  redoAction,
+  refreshPage,
 }: FloatingToolbarProps) {
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="flex items-center bg-card/95 backdrop-blur-md shadow-lg border rounded-lg px-2 py-1.5 gap-1">
         {/* Undo Button */}
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 w-6 p-0"
+          onClick={undoAction}
+        >
           <Undo2 className="h-3.5 w-3.5" />
         </Button>
         
         {/* Redo Button */}
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 w-6 p-0"
+          onClick={redoAction}
+        >
           <Redo2 className="h-3.5 w-3.5" />
         </Button>
         
@@ -55,7 +71,12 @@ export function FloatingToolbar({
         <div className="w-px h-3 bg-border mx-1"></div>
         
         {/* Refresh Button */}
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 w-6 p-0"
+          onClick={refreshPage}
+        >
           <RefreshCw className="h-3.5 w-3.5" />
         </Button>
         

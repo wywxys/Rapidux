@@ -6,6 +6,7 @@ import { RightPanelTab, LayoutType, FlexDirection } from '../types';
 
 interface RightSidebarProps {
   selectedPage: string;
+  selectedComponent: string;
   selectedLayer: string;
   rightPanelTab: RightPanelTab;
   setRightPanelTab: (tab: RightPanelTab) => void;
@@ -21,6 +22,7 @@ interface RightSidebarProps {
 
 export function RightSidebar({
   selectedPage,
+  selectedComponent,
   selectedLayer,
   rightPanelTab,
   setRightPanelTab,
@@ -37,27 +39,28 @@ export function RightSidebar({
     <aside className="w-80 bg-card/30 border-l">
       <ScrollArea className="h-full">
         <div className="p-4 space-y-4">
-          {(selectedPage === 'home' || selectedLayer || selectedPage === 'settings') && (
+          {(selectedPage || selectedComponent || selectedLayer) && (
             <>
               {/* Element Header */}
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">
-                  {selectedPage === 'home' ? 'Home' : selectedPage === 'settings' ? 'Page Settings' : selectedLayer}
+                  {selectedComponent 
+                    ? selectedComponent 
+                    : selectedLayer
+                      ? selectedLayer 
+                      : selectedPage 
+                        ? 'Page Settings'
+                        : 'Properties'}
                 </h2>
                 <div className="flex items-center space-x-2">
                   {/* Header action buttons will be added here */}
                 </div>
               </div>
 
-              {/* Content based on selection */}
-              {selectedPage === 'settings' && (
-                <PageSettingsPanel />
-              )}
-
-              {/* Style/Props Toggle for other selections */}
-              {selectedPage !== 'settings' && (
+              {/* Content based on selection priority: Component/Layer > Page */}
+              {(selectedComponent || selectedLayer) && (
                 <>
-                  {/* Style/Props Toggle */}
+                  {/* Style/Props Toggle for component/layer selections */}
                   <div className="flex bg-muted/50 rounded-lg p-1">
                     <button 
                       className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
@@ -80,35 +83,36 @@ export function RightSidebar({
                       Props
                     </button>
                   </div>
+
+                  {/* Style/Props Content */}
+                  {rightPanelTab === 'style' && (
+                    <StylePanel
+                      layoutType={layoutType}
+                      setLayoutType={setLayoutType}
+                      flexDirection={flexDirection}
+                      setFlexDirection={setFlexDirection}
+                      fontSize={fontSize}
+                      setFontSize={setFontSize}
+                      borderRadius={borderRadius}
+                      setBorderRadius={setBorderRadius}
+                    />
+                  )}
+
+                  {rightPanelTab === 'props' && (
+                    <PropsPanel />
+                  )}
                 </>
               )}
-            </>
-          )}
 
-          {/* Regular Style/Props content */}
-          {(selectedPage === 'home' || selectedLayer) && (
-            <>
-              {rightPanelTab === 'style' && (
-                <StylePanel
-                  layoutType={layoutType}
-                  setLayoutType={setLayoutType}
-                  flexDirection={flexDirection}
-                  setFlexDirection={setFlexDirection}
-                  fontSize={fontSize}
-                  setFontSize={setFontSize}
-                  borderRadius={borderRadius}
-                  setBorderRadius={setBorderRadius}
-                />
-              )}
-
-              {rightPanelTab === 'props' && (
-                <PropsPanel />
+              {/* Page Settings - shown when ONLY page is selected (no component/layer) */}
+              {selectedPage && !selectedComponent && !selectedLayer && (
+                <PageSettingsPanel />
               )}
             </>
           )}
 
           {/* Default Properties Panel (when nothing is selected) */}
-          {!selectedPage && !selectedLayer && (
+          {!selectedPage && !selectedComponent && !selectedLayer && (
             <StylePanel
               layoutType={layoutType}
               setLayoutType={setLayoutType}
