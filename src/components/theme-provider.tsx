@@ -59,17 +59,21 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
+    setTheme: (newTheme: Theme) => {
+      setTheme(newTheme);
       if (mounted) {
-        localStorage.setItem(storageKey, theme);
+        localStorage.setItem(storageKey, newTheme);
       }
-      setTheme(theme);
     },
   };
 
   // 在客户端挂载前显示默认主题，避免水合不匹配
   if (!mounted) {
-    return <div suppressHydrationWarning>{children}</div>;
+    return (
+      <ThemeProviderContext.Provider {...props} value={value}>
+        <div suppressHydrationWarning>{children}</div>
+      </ThemeProviderContext.Provider>
+    );
   }
 
   return (

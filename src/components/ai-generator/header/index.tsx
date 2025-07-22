@@ -1,9 +1,17 @@
-import { Settings, Sparkles, Keyboard } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Settings, Sparkles, Keyboard, ChevronDown, ArrowLeft, HelpCircle } from 'lucide-react';
+import { IconButton, DropdownButton } from '@/components/composite';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { SettingsSheet } from '../settings/index';
 import { ShortcutsDialog } from '../dialogs/shortcuts-dialog';
+import Link from 'next/link';
 
 interface HeaderProps {
   showSettingsSheet: boolean;
@@ -52,27 +60,43 @@ export function Header({
     <header className="border-b bg-card/50 backdrop-blur-sm px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-primary rounded-lg">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <h1 className="text-xl font-semibold">
-            AI Component Generator
-          </h1>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex items-center bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors cursor-pointer">
+                <div className="p-2 bg-primary rounded-lg">
+                  <Sparkles className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div className="px-2">
+                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard" className="flex items-center">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <span>Back to Dashboard</span>
+                </Link>
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem disabled>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>Help Documentation</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex items-center space-x-2">
           <ThemeToggle />
-          <Button 
-            variant="ghost" 
-            size="icon"
+          <IconButton 
+            icon={Keyboard}
             onClick={() => setShowShortcutsDialog(true)}
-          >
-            <Keyboard className="h-5 w-5" />
-          </Button>
+          />
           <Sheet open={showSettingsSheet} onOpenChange={setShowSettingsSheet}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
+              <IconButton icon={Settings} />
             </SheetTrigger>
             <SettingsSheet
               autoSaveCode={autoSaveCode}
