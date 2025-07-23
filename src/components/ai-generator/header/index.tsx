@@ -1,6 +1,7 @@
-import { Settings, Sparkles, Keyboard, ChevronDown, ArrowLeft, HelpCircle } from 'lucide-react';
+import { Settings, Sparkles, Keyboard, ChevronDown, ArrowLeft, HelpCircle, Download, Archive, FileDown, FileCode } from 'lucide-react';
 import { IconButton, DropdownButton } from '@/components/composite';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Button } from '@/components/ui/button';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -8,10 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { SettingsSheet } from '../settings/index';
 import { ShortcutsDialog } from '../dialogs/shortcuts-dialog';
 import Link from 'next/link';
+import { ProjectExporter } from '@/lib/project-exporter';
+import { Project } from '@/types/real-project';
+import { toast } from 'sonner';
 
 interface HeaderProps {
   showSettingsSheet: boolean;
@@ -33,6 +38,8 @@ interface HeaderProps {
   enablePrettierOnSave: boolean;
   setEnablePrettierOnSave: (enable: boolean) => void;
   saveSettings: () => void;
+  currentProject?: Project;
+  onExportProject?: (project: Project) => void;
 }
 
 export function Header({
@@ -55,7 +62,57 @@ export function Header({
   enablePrettierOnSave,
   setEnablePrettierOnSave,
   saveSettings,
+  currentProject,
+  onExportProject,
 }: HeaderProps) {
+  
+  const handleExportAsJSON = () => {
+    if (currentProject) {
+      try {
+        ProjectExporter.exportAsJSON(currentProject);
+        toast.success(`"${currentProject.name}" exported as JSON successfully!`);
+        onExportProject?.(currentProject);
+      } catch (error) {
+        toast.error('Failed to export project as JSON');
+        console.error('Export error:', error);
+      }
+    }
+  };
+
+  const handleExportAsProject = () => {
+    if (currentProject) {
+      try {
+        ProjectExporter.exportAsNextJSProject(currentProject);
+        toast.success(`"${currentProject.name}" exported as project documentation!`);
+        onExportProject?.(currentProject);
+      } catch (error) {
+        toast.error('Failed to export project documentation');
+        console.error('Export error:', error);
+      }
+    }
+  };
+
+  const handleExportStats = () => {
+    if (currentProject) {
+      try {
+        const stats = ProjectExporter.generateProjectStats(currentProject);
+        const blob = new Blob([stats], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${currentProject.name.toLowerCase().replace(/\s+/g, '-')}-stats.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(`"${currentProject.name}" statistics exported!`);
+        onExportProject?.(currentProject);
+      } catch (error) {
+        toast.error('Failed to export project statistics');
+        console.error('Export error:', error);
+      }
+    }
+  };
   return (
     <header className="border-b bg-card/50 backdrop-blur-sm px-6 py-4">
       <div className="flex items-center justify-between">
@@ -89,6 +146,37 @@ export function Header({
           </DropdownMenu>
         </div>
         <div className="flex items-center space-x-2">
+          {currentProject && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Export Code
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Export Options</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleExportAsJSON}>
+                  <FileCode className="mr-2 h-4 w-4" />
+                  Export as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportAsProject}>
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Export as Project (MD)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportStats}>
+                  <Archive className="mr-2 h-4 w-4" />
+                  Export Statistics
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <ThemeToggle />
           <IconButton 
             icon={Keyboard}

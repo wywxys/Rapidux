@@ -1,0 +1,26 @@
+{
+  "projects": [
+    {
+      "id": "proj_1753242684137_6qp0k0pmu",
+      "name": "aTest",
+      "description": "试试",
+      "userId": "1",
+      "createdAt": "2025-07-23T03:51:24.137Z",
+      "updatedAt": "2025-07-23T03:51:24.137Z",
+      "path": "C:\\Users\\I764631\\GitProjects\\rapidux-app\\user-projects\\1\\atest",
+      "status": "active",
+      "framework": "nextjs"
+    },
+    {
+      "id": "proj_1753264135242_unbaogytx",
+      "name": "aaaaTest",
+      "description": "A new nextjs project created with Rapidux",
+      "userId": "1",
+      "createdAt": "2025-07-23T09:48:55.242Z",
+      "updatedAt": "2025-07-23T09:48:55.242Z",
+      "path": "C:\\Users\\I764631\\GitProjects\\rapidux-app\\user-projects\\1\\aaaatest",
+      "status": "active",
+      "framework": "nextjs"
+    }
+  ]
+}

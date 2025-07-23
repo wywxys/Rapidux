@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { Toaster } from '@/components/ui/sonner';
 import { Header } from './header';
 import { LeftSidebar } from './sidebar-left';
 import { Canvas } from './canvas';
@@ -11,10 +10,40 @@ import { FloatingToolbar } from './floating-toolbar';
 import { AIInput } from './floating-toolbar/ai-input';
 import { CodeViewerDialog } from './dialogs/code-viewer-dialog';
 import { useAIGenerator } from './hooks/use-ai-generator';
+import { Project } from '@/types/real-project';
 import './styles.css';
 
 export function AIComponentGenerator() {
   const state = useAIGenerator();
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 从URL参数获取项目ID并加载项目
+  useEffect(() => {
+    const loadProject = async () => {
+      try {
+        // 从URL参数获取项目ID
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('project');
+        
+        if (projectId) {
+          const response = await fetch(`/api/projects/${projectId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setCurrentProject(data.project);
+          } else {
+            console.error('Failed to load project');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading project:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProject();
+  }, []);
 
   // 添加快捷键监听
   useEffect(() => {
@@ -71,6 +100,11 @@ export function AIComponentGenerator() {
     };
   }, [state]);
 
+  // 处理项目导出
+  const handleExportProject = (project: Project) => {
+    console.log('Export project called:', project.name);
+  };
+
   return (
     <TooltipProvider>
       <div className="h-screen bg-background text-foreground flex flex-col relative">
@@ -95,6 +129,8 @@ export function AIComponentGenerator() {
           enablePrettierOnSave={state.enablePrettierOnSave}
           setEnablePrettierOnSave={state.setEnablePrettierOnSave}
           saveSettings={state.saveSettings}
+          currentProject={currentProject || undefined}
+          onExportProject={handleExportProject}
         />
 
         {/* Main Content */}
@@ -115,6 +151,7 @@ export function AIComponentGenerator() {
           <Canvas
             viewMode={state.viewMode}
             generatedCode={state.generatedCode}
+            currentProject={currentProject || undefined}
           />
 
           {/* Right Sidebar - Properties */}
@@ -168,21 +205,7 @@ export function AIComponentGenerator() {
           showIcon={true}
         />
 
-        {/* Toast Notifications */}
-        <Toaster 
-          position="top-center"
-          toastOptions={{
-            style: {
-              background: 'hsl(var(--card))',
-              color: 'hsl(var(--card-foreground))',
-              border: '1px solid hsl(var(--border))',
-              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-              backdropFilter: 'blur(8px)',
-              opacity: 1,
-            },
-            className: 'bg-card/95 backdrop-blur-sm border shadow-lg',
-          }}
-        />
+        {/* Remove duplicate Toaster here */}
       </div>
     </TooltipProvider>
   );

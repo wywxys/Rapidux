@@ -3,10 +3,9 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Sparkles, Plus, FolderOpen, Calendar, Code2, Eye, Search, SortAsc, SortDesc } from 'lucide-react';
+import { Sparkles, Plus, FolderOpen, Calendar, Code2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { LoadingButton } from '@/components/composite';
 import { UserMenu } from '@/components/dashboard/user-menu';
 import { CreateProjectDialog } from '@/components/dashboard/create-project-dialog';
@@ -18,9 +17,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'date'>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     if (status === 'loading') return; // Still loading
@@ -48,32 +44,6 @@ export default function DashboardPage() {
     }
   };
 
-  // 过滤和排序项目
-  const filteredAndSortedProjects = projects
-    .filter(project => 
-      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortBy === 'name') {
-        const comparison = a.name.localeCompare(b.name);
-        return sortOrder === 'asc' ? comparison : -comparison;
-      } else {
-        const aDate = new Date(a.updatedAt).getTime();
-        const bDate = new Date(b.updatedAt).getTime();
-        return sortOrder === 'desc' ? bDate - aDate : aDate - bDate;
-      }
-    });
-
-  const toggleSort = (newSortBy: 'name' | 'date') => {
-    if (sortBy === newSortBy) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(newSortBy);
-      setSortOrder(newSortBy === 'name' ? 'asc' : 'desc');
-    }
-  };
-
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -93,7 +63,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm px-6 py-4">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-primary rounded-lg">
               <Sparkles className="h-5 w-5 text-primary-foreground" />
@@ -110,7 +80,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Welcome Section */}
           <div className="text-center space-y-4 py-12">
@@ -154,66 +124,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Projects Section */}
-          <div className="space-y-6">
-            {/* Section Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold">Recent Projects</h2>
-                {projects.length > 0 && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {filteredAndSortedProjects.length} of {projects.length} projects
-                    {searchQuery && ` matching "${searchQuery}"`}
-                  </p>
-                )}
-              </div>
-              
-              {/* Search and Sort Controls */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                {/* Search Input */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search projects..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-full sm:w-64"
-                  />
-                </div>
-                
-                {/* Sort Controls */}
-                <div className="flex gap-2">
-                  <Button
-                    variant={sortBy === 'name' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => toggleSort('name')}
-                    className="flex items-center gap-2"
-                  >
-                    {sortBy === 'name' && sortOrder === 'desc' ? 
-                      <SortDesc className="h-4 w-4" /> : 
-                      <SortAsc className="h-4 w-4" />
-                    }
-                    Name
-                  </Button>
-                  <Button
-                    variant={sortBy === 'date' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => toggleSort('date')}
-                    className="flex items-center gap-2"
-                  >
-                    {sortBy === 'date' && sortOrder === 'desc' ? 
-                      <SortDesc className="h-4 w-4" /> : 
-                      <SortAsc className="h-4 w-4" />
-                    }
-                    Date
-                  </Button>
-                </div>
-              </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Recent Projects</h2>
+              <CreateProjectDialog onProjectCreated={fetchProjects} />
             </div>
             
-            {/* Projects Grid */}
-            {filteredAndSortedProjects.length > 0 ? (
+            {projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredAndSortedProjects.map((project) => (
+                {projects.map((project) => (
                   <Card key={project.id} className="p-6 hover:shadow-md transition-shadow">
                     <div className="space-y-4">
                       {/* Project Header */}
@@ -264,31 +183,13 @@ export default function DashboardPage() {
                   </Card>
                 ))}
               </div>
-            ) : projects.length === 0 ? (
-              /* No projects at all */
+            ) : (
               <div className="text-center py-12 border-2 border-dashed rounded-lg">
                 <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="font-medium mb-2">No projects yet</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Create your first project to get started
                 </p>
-                <CreateProjectDialog onProjectCreated={fetchProjects} />
-              </div>
-            ) : (
-              /* No projects match search */
-              <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-medium mb-2">No projects found</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Try adjusting your search or create a new project
-                </p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setSearchQuery('')}
-                  className="mr-2"
-                >
-                  Clear Search
-                </Button>
                 <CreateProjectDialog onProjectCreated={fetchProjects} />
               </div>
             )}
