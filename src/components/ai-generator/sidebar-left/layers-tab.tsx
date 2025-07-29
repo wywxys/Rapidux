@@ -1,7 +1,8 @@
-import { Minimize2, Home, ChevronDown, Square, ChevronRight, FileText } from 'lucide-react';
+import { Minimize2, Home, ChevronDown, Square, ChevronRight, FileText, Container, Type, MousePointer, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { LayerInfo } from '../types/layers';
 
 interface LayersTabProps {
   selectedLayer: string;
@@ -9,6 +10,7 @@ interface LayersTabProps {
   setSelectedPage: (page: string) => void;
   setSelectedComponent: (component: string) => void;
   selectedPage: string; // 添加选中页面的prop
+  canvasLayers: LayerInfo[]; // 添加canvas层级数据
 }
 
 export function LayersTab({
@@ -17,95 +19,58 @@ export function LayersTab({
   setSelectedPage,
   setSelectedComponent,
   selectedPage,
+  canvasLayers,
 }: LayersTabProps) {
   const [isPagesDropdownOpen, setIsPagesDropdownOpen] = useState(false);
-  const [expandedLayers, setExpandedLayers] = useState<string[]>(['div-main']); // 管理展开的层
+  const [expandedLayers, setExpandedLayers] = useState<string[]>(['project-container']); // 管理展开的层
   
   const pages = [
     { name: 'Home', path: 'home', icon: Home },
     { name: '/settings', path: 'settings', icon: FileText }
   ];
 
-  // 不同页面的层结构
-  const pageLayersMap: Record<string, any[]> = {
-    home: [
-      {
-        id: 'div-main',
-        name: 'div',
-        type: 'container',
-        children: [
-          { id: 'header', name: 'Header', type: 'component' },
-          { id: 'nav', name: 'Navigation', type: 'component' },
-          {
-            id: 'content',
-            name: 'Content',
-            type: 'container',
-            children: [
-              { id: 'sidebar', name: 'Sidebar', type: 'component' },
-              { id: 'main-content', name: 'Main Content', type: 'component' }
-            ]
-          },
-          { id: 'footer', name: 'Footer', type: 'component' }
-        ]
-      }
-    ],
-    settings: [
-      {
-        id: 'settings-container',
-        name: 'Settings Container',
-        type: 'container',
-        children: [
-          { id: 'settings-header', name: 'Settings Header', type: 'component' },
-          {
-            id: 'settings-form',
-            name: 'Settings Form',
-            type: 'container',
-            children: [
-              { id: 'form-section-1', name: 'General Settings', type: 'component' },
-              { id: 'form-section-2', name: 'Privacy Settings', type: 'component' }
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  // 使用从Canvas传递过来的真实层级数据
+  const currentLayers = canvasLayers.length > 0 ? canvasLayers : [];
 
-  const currentLayers = pageLayersMap[selectedPage] || [];
-
-  const handleCollapseAll = () => {
+  const handleCollapseAll = useCallback(() => {
     setExpandedLayers([]);
     setSelectedLayer('');
     console.log('Collapsing all layers...');
-  };
+  }, [setSelectedLayer]);
 
-  const handlePageSelect = (page: string) => {
+  const handlePageSelect = useCallback((page: string) => {
     setSelectedPage(page);
-    // 只有在切换到不同页面时才清空层选择
+    // Only clear layer selection if switching to a different page
     if (selectedPage !== page) {
       setSelectedLayer('');
     }
-    setIsPagesDropdownOpen(false); // 收起下拉框
-    // 重置展开状态
-    setExpandedLayers(pageLayersMap[page]?.[0]?.id ? [pageLayersMap[page][0].id] : []);
-  };
+    setIsPagesDropdownOpen(false); // Close dropdown
+    // Reset expansion state
+    setExpandedLayers(canvasLayers.length > 0 ? [canvasLayers[0].id] : []);
+  }, [selectedPage, setSelectedPage, setSelectedLayer, canvasLayers]);
 
-  const toggleLayerExpansion = (layerId: string) => {
+  const toggleLayerExpansion = useCallback((layerId: string) => {
     setExpandedLayers(prev => 
       prev.includes(layerId) 
         ? prev.filter(id => id !== layerId)
         : [...prev, layerId]
     );
-  };
+  }, []);
 
-  const isChildOfSelected = (layer: any): boolean => {
+  const handleLayerSelect = useCallback((layerId: string) => {
+    setSelectedLayer(layerId);
+    setSelectedComponent(''); // Clear component selection but keep page selection
+  }, [setSelectedLayer, setSelectedComponent]);
+
+  const isChildOfSelected = (layer: LayerInfo): boolean => {
     if (!selectedLayer) return false;
     
     // 检查当前层是否是选中层的直接或间接子层
-    const checkIfChildOfSelected = (layers: any[], selectedId: string): boolean => {
+    const checkIfChildOfSelected = (layers: LayerInfo[], selectedId: string): boolean => {
       for (const l of layers) {
         if (l.id === selectedId && l.children) {
           // 递归检查所有子层
-          const getAllChildIds = (children: any[]): string[] => {
+          const getAllChildIds = (children: LayerInfo[]): string[] => {
             let ids: string[] = [];
             children.forEach(child => {
               ids.push(child.id);
@@ -129,7 +94,24 @@ export function LayersTab({
     return checkIfChildOfSelected(currentLayers, selectedLayer);
   };
 
-  const renderLayer = (layer: any, depth = 0) => {
+  const getLayerIcon = (type: LayerInfo['type']) => {
+    switch (type) {
+      case 'container':
+        return <Container className="h-4 w-4" />;
+      case 'component':
+        return <Square className="h-4 w-4" />;
+      case 'text':
+        return <Type className="h-4 w-4" />;
+      case 'button':
+        return <MousePointer className="h-4 w-4" />;
+      case 'card':
+        return <CreditCard className="h-4 w-4" />;
+      default:
+        return <Square className="h-4 w-4" />;
+    }
+  };
+
+  const renderLayer = (layer: LayerInfo, depth = 0) => {
     const isExpanded = expandedLayers.includes(layer.id);
     const isSelected = selectedLayer === layer.id;
     const isChild = isChildOfSelected(layer);
@@ -151,10 +133,7 @@ export function LayersTab({
         <div 
           className={combinedClasses}
           style={{ marginLeft: `${depth * 16}px` }}
-          onClick={() => {
-            setSelectedLayer(layer.id);
-            setSelectedComponent(''); // 清空组件选择，但保留页面选择
-          }}
+          onClick={() => handleLayerSelect(layer.id)}
         >
           {layer.children && layer.children.length > 0 ? (
             <button
@@ -173,14 +152,14 @@ export function LayersTab({
           ) : (
             <div className="w-4 h-4" />
           )}
-          <Square className="h-4 w-4" />
+          {getLayerIcon(layer.type)}
           <span className="text-sm">{layer.name}</span>
         </div>
         
         {/* Render children if expanded */}
         {isExpanded && layer.children && (
           <div className="space-y-1">
-            {layer.children.map((child: any) => renderLayer(child, depth + 1))}
+            {layer.children.map((child: LayerInfo) => renderLayer(child, depth + 1))}
           </div>
         )}
       </div>

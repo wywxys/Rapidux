@@ -11,12 +11,29 @@ import { AIInput } from './floating-toolbar/ai-input';
 import { CodeViewerDialog } from './dialogs/code-viewer-dialog';
 import { useAIGenerator } from './hooks/use-ai-generator';
 import { Project } from '@/types/real-project';
+import { LayerInfo } from './types/layers';
 import './styles.css';
 
 export function AIComponentGenerator() {
   const state = useAIGenerator();
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(300);
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(320);
+  const [isResizingLeft, setIsResizingLeft] = useState(false);
+  const [isResizingRight, setIsResizingRight] = useState(false);
+  const [canvasElementWidth, setCanvasElementWidth] = useState(800);
+  const [canvasLayers, setCanvasLayers] = useState<LayerInfo[]>([]);
+
+  // 处理层级选择
+  const handleLayerSelect = (layerId: string) => {
+    state.setSelectedLayer(layerId);
+  };
+
+  // 处理层级变化
+  const handleLayersChange = (layers: LayerInfo[]) => {
+    setCanvasLayers(layers);
+  };
 
   // 从URL参数获取项目ID并加载项目
   useEffect(() => {
@@ -44,6 +61,37 @@ export function AIComponentGenerator() {
 
     loadProject();
   }, []);
+
+  // 处理侧边栏大小调整
+  const handleLeftResizeStart = () => setIsResizingLeft(true);
+  const handleRightResizeStart = () => setIsResizingRight(true);
+
+  const handleMouseMove = (event: MouseEvent) => {
+    if (isResizingLeft) {
+      const newWidth = Math.max(200, Math.min(500, event.clientX));
+      setLeftSidebarWidth(newWidth);
+    }
+    if (isResizingRight) {
+      const newWidth = Math.max(250, Math.min(600, window.innerWidth - event.clientX));
+      setRightSidebarWidth(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsResizingLeft(false);
+    setIsResizingRight(false);
+  };
+
+  useEffect(() => {
+    if (isResizingLeft || isResizingRight) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isResizingLeft, isResizingRight]);
 
   // 添加快捷键监听
   useEffect(() => {
@@ -134,42 +182,71 @@ export function AIComponentGenerator() {
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden relative">
           {/* Left Sidebar - Project Structure */}
-          <LeftSidebar
-            activeTab={state.activeTab}
-            setActiveTab={state.setActiveTab}
-            selectedPage={state.selectedPage}
-            setSelectedPage={state.setSelectedPage}
-            selectedComponent={state.selectedComponent}
-            setSelectedComponent={state.setSelectedComponent}
-            selectedLayer={state.selectedLayer}
-            setSelectedLayer={state.setSelectedLayer}
+          <div 
+            className="flex-shrink-0 border-r border-border bg-background"
+            style={{ width: `${leftSidebarWidth}px` }}
+          >
+            <LeftSidebar
+              activeTab={state.activeTab}
+              setActiveTab={state.setActiveTab}
+              selectedPage={state.selectedPage}
+              setSelectedPage={state.setSelectedPage}
+              selectedComponent={state.selectedComponent}
+              setSelectedComponent={state.setSelectedComponent}
+              selectedLayer={state.selectedLayer}
+              setSelectedLayer={state.setSelectedLayer}
+              canvasLayers={canvasLayers}
+            />
+          </div>
+
+          {/* Left Resize Handle */}
+          <div
+            className="w-1 bg-border hover:bg-blue-500 cursor-ew-resize flex-shrink-0 transition-colors z-10"
+            onMouseDown={handleLeftResizeStart}
           />
 
           {/* Center Canvas */}
-          <Canvas
-            viewMode={state.viewMode}
-            generatedCode={state.generatedCode}
-            currentProject={currentProject || undefined}
+          <div className="flex-1 relative z-0">
+            <Canvas
+              viewMode={state.viewMode}
+              generatedCode={state.generatedCode}
+              currentProject={currentProject || undefined}
+              onElementSizeChange={setCanvasElementWidth}
+              selectedLayer={state.selectedLayer}
+              onLayerSelect={handleLayerSelect}
+              onLayersChange={handleLayersChange}
+            />
+          </div>
+
+          {/* Right Resize Handle */}
+          <div
+            className="w-1 bg-border hover:bg-blue-500 cursor-ew-resize flex-shrink-0 transition-colors z-10"
+            onMouseDown={handleRightResizeStart}
           />
 
           {/* Right Sidebar - Properties */}
-          <RightSidebar
-            selectedPage={state.selectedPage}
-            selectedComponent={state.selectedComponent}
-            selectedLayer={state.selectedLayer}
-            rightPanelTab={state.rightPanelTab}
-            setRightPanelTab={state.setRightPanelTab}
-            layoutType={state.layoutType}
-            setLayoutType={state.setLayoutType}
-            flexDirection={state.flexDirection}
-            setFlexDirection={state.setFlexDirection}
-            fontSize={state.fontSize}
-            setFontSize={state.setFontSize}
-            borderRadius={state.borderRadius}
-            setBorderRadius={state.setBorderRadius}
-          />
+          <div 
+            className="flex-shrink-0 border-l border-border bg-background"
+            style={{ width: `${rightSidebarWidth}px` }}
+          >
+            <RightSidebar
+              selectedPage={state.selectedPage}
+              selectedComponent={state.selectedComponent}
+              selectedLayer={state.selectedLayer}
+              rightPanelTab={state.rightPanelTab}
+              setRightPanelTab={state.setRightPanelTab}
+              layoutType={state.layoutType}
+              setLayoutType={state.setLayoutType}
+              flexDirection={state.flexDirection}
+              setFlexDirection={state.setFlexDirection}
+              fontSize={state.fontSize}
+              setFontSize={state.setFontSize}
+              borderRadius={state.borderRadius}
+              setBorderRadius={state.setBorderRadius}
+            />
+          </div>
         </div>
 
         {/* Floating AI Input */}

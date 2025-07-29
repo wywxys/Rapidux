@@ -1,0 +1,13 @@
+{
+  "id": "portfolio-website-demo",
+  "name": "Personal Portfolio",
+  "description": "A clean and professional personal portfolio website for creative professionals",
+  "framework": "next",
+  "status": "active",
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "path": "user-projects/demo/portfolio-website",
+  "tags": ["portfolio", "personal", "creative", "professional"],
+  "author": "demo",
+  "isTemplate": true
+}

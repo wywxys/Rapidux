@@ -24,10 +24,22 @@ interface ProjectMetadata {
 
 // 项目根目录
 const PROJECTS_ROOT = path.join(process.cwd(), 'user-projects');
-const TEMPLATE_PATH = path.join(process.cwd(), 'sample-project');
+const DEMO_PROJECTS_PATH = path.join(PROJECTS_ROOT, 'demo');
 const METADATA_FILE = path.join(PROJECTS_ROOT, 'projects-metadata.json');
 
 export class RealProjectService {
+  // 确保项目根目录存在
+  static async ensureProjectsDir(): Promise<void> {
+    if (!isServer) return;
+    
+    try {
+      if (!fs.existsSync(PROJECTS_ROOT)) {
+        fs.mkdirSync(PROJECTS_ROOT, { recursive: true });
+      }
+    } catch (error) {
+      console.error('Error creating projects directory:', error);
+    }
+  }
   
   // 初始化项目目录
   static async initializeProjectsDirectory(): Promise<void> {
@@ -84,27 +96,60 @@ export class RealProjectService {
     }
   }
 
-  // 获取所有项目
+  // 获取所有示例项目
+  static async getDemoProjects(): Promise<RealProject[]> {
+    if (!isServer) return [];
+    
+    try {
+      await this.ensureProjectsDir();
+      
+      const demoProjects: RealProject[] = [];
+      const templates = this.getAvailableTemplates();
+      
+      for (const templateName of templates) {
+        const projectJsonPath = path.join(DEMO_PROJECTS_PATH, templateName, 'project.json');
+        
+        if (fs.existsSync(projectJsonPath)) {
+          const projectData = JSON.parse(fs.readFileSync(projectJsonPath, 'utf-8'));
+          demoProjects.push({
+            ...projectData,
+            userId: 'demo',
+            createdAt: new Date(projectData.createdAt),
+            updatedAt: new Date(projectData.updatedAt),
+            path: path.join('user-projects', 'demo', templateName)
+          });
+        }
+      }
+      
+      return demoProjects;
+    } catch (error) {
+      console.error('Error getting demo projects:', error);
+      return [];
+    }
+  }
   static getAllProjects(): RealProject[] {
     const metadata = this.getProjectMetadata();
     return metadata.projects;
   }
 
   // 获取用户的所有项目
-  static getUserProjects(userId: string): RealProject[] {
+  static async getUserProjects(userId: string): Promise<RealProject[]> {
     const allProjects = this.getAllProjects();
+    // 只返回属于该用户的项目，不包括demo项目
     return allProjects.filter(project => project.userId === userId);
   }
 
   // 根据ID获取项目
-  static getProjectById(projectId: string): RealProject | null {
+  static async getProjectById(projectId: string): Promise<RealProject | null> {
+    // 查找常规项目
     const projects = this.getAllProjects();
     return projects.find(project => project.id === projectId) || null;
   }
 
   // 验证项目名称唯一性
   static validateProjectName(userId: string, projectName: string, excludeId?: string): boolean {
-    const userProjects = this.getUserProjects(userId);
+    const allProjects = this.getAllProjects();
+    const userProjects = allProjects.filter(project => project.userId === userId);
     return !userProjects.some(p => 
       p.name.toLowerCase() === projectName.toLowerCase() && 
       p.id !== excludeId
@@ -116,7 +161,83 @@ export class RealProjectService {
     return `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // 复制模板目录
+    // 获取可用的模板项目
+  static getAvailableTemplates(): string[] {
+    if (!isServer) return [];
+    
+    try {
+      if (!fs.existsSync(DEMO_PROJECTS_PATH)) {
+        return [];
+      }
+      
+      return fs.readdirSync(DEMO_PROJECTS_PATH, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(dirent => dirent.name);
+    } catch (error) {
+      console.error('Error getting templates:', error);
+      return [];
+    }
+  }
+
+  // 获取可用的模板项目信息
+  static async getAvailableTemplatesInfo(): Promise<Array<{
+    id: string;
+    name: string;
+    description: string;
+    framework: string;
+    tags: string[];
+    preview?: string;
+  }>> {
+    if (!isServer) return [];
+    
+    try {
+      await this.ensureProjectsDir();
+      
+      const templates: Array<{
+        id: string;
+        name: string;
+        description: string;
+        framework: string;
+        tags: string[];
+        preview?: string;
+      }> = [];
+      
+      const templateNames = this.getAvailableTemplates();
+      
+      for (const templateName of templateNames) {
+        const projectJsonPath = path.join(DEMO_PROJECTS_PATH, templateName, 'project.json');
+        
+        if (fs.existsSync(projectJsonPath)) {
+          const projectData = JSON.parse(fs.readFileSync(projectJsonPath, 'utf-8'));
+          templates.push({
+            id: templateName,
+            name: projectData.name,
+            description: projectData.description,
+            framework: projectData.framework,
+            tags: projectData.tags || [],
+            preview: `/api/templates/${templateName}/preview`
+          });
+        }
+      }
+      
+      return templates;
+    } catch (error) {
+      console.error('Error getting template info:', error);
+      return [];
+    }
+  }
+
+  // 获取模板路径
+  static getTemplatePath(templateName?: string): string {
+    const templates = this.getAvailableTemplates();
+    
+    // 如果没有指定模板或模板不存在，使用第一个可用模板
+    const selectedTemplate = (templateName && templates.includes(templateName)) 
+      ? templateName 
+      : templates[0] || 'modern-ecommerce';
+      
+    return path.join(DEMO_PROJECTS_PATH, selectedTemplate);
+  }
   static async copyTemplate(templatePath: string, targetPath: string): Promise<void> {
     const copyRecursive = (src: string, dest: string) => {
       if (!fs.existsSync(src)) {
@@ -177,7 +298,8 @@ export class RealProjectService {
     userId: string,
     name: string,
     description: string,
-    framework: 'nextjs' | 'react' | 'vue' = 'nextjs'
+    framework: 'nextjs' | 'react' | 'vue' = 'nextjs',
+    templateId?: string
   ): Promise<RealProject> {
     // 验证项目名称唯一性
     if (!this.validateProjectName(userId, name)) {
@@ -205,8 +327,11 @@ export class RealProjectService {
     }
 
     try {
+      // 获取模板路径 - 优先使用指定的模板ID
+      const templatePath = this.getTemplatePath(templateId || framework);
+      
       // 复制模板到项目目录
-      await this.copyTemplate(TEMPLATE_PATH, projectPath);
+      await this.copyTemplate(templatePath, projectPath);
       
       // 更新项目的package.json
       this.updateProjectPackageJson(projectPath, name);
@@ -267,7 +392,7 @@ export class RealProjectService {
 
   // 删除项目
   static async deleteProject(projectId: string): Promise<boolean> {
-    const project = this.getProjectById(projectId);
+    const project = await this.getProjectById(projectId);
     if (!project) return false;
 
     try {
@@ -300,8 +425,8 @@ export class RealProjectService {
   }
 
   // 获取项目统计信息
-  static getProjectStats(projectId: string): any {
-    const project = this.getProjectById(projectId);
+  static async getProjectStats(projectId: string): Promise<any> {
+    const project = await this.getProjectById(projectId);
     if (!project || !fs.existsSync(project.path)) return null;
 
     const countFiles = (dir: string): { total: number; byType: Record<string, number> } => {

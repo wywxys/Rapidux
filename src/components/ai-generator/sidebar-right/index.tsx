@@ -36,7 +36,7 @@ export function RightSidebar({
   setBorderRadius,
 }: RightSidebarProps) {
   return (
-    <aside className="w-80 bg-card/30 border-l">
+    <aside className="h-full bg-card/30 border-l flex flex-col">
       <ScrollArea className="h-full">
         <div className="p-4 space-y-4">
           {(selectedPage || selectedComponent || selectedLayer) && (

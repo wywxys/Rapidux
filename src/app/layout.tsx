@@ -36,7 +36,12 @@ export default function RootLayout({
             storageKey="ai-component-generator-theme"
           >
             {children}
-            <Toaster richColors />
+            <Toaster 
+              richColors 
+              position="top-center"
+              expand={false}
+              duration={4000}
+            />
           </ThemeProvider>
         </AuthProvider>
       </body>

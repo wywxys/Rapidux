@@ -1,0 +1,13 @@
+{
+  "id": "restaurant-website-demo",
+  "name": "Restaurant Website",
+  "description": "A warm and inviting restaurant website with rich colors and appetizing design",
+  "framework": "next",
+  "status": "active",
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "path": "user-projects/demo/restaurant-website",
+  "tags": ["restaurant", "food", "warm"],
+  "author": "demo",
+  "isTemplate": true
+}

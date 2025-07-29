@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     // 获取真实项目
     let realProjects: any[] = [];
     try {
-      realProjects = RealProjectService.getUserProjects(userId);
+      realProjects = await RealProjectService.getUserProjects(userId);
     } catch (error) {
       console.log('No real projects found, using mock data');
     }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, description, framework = 'nextjs' } = await request.json();
+    const { name, description, framework = 'nextjs', template } = await request.json();
     
     if (!name) {
       return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
@@ -91,7 +91,8 @@ export async function POST(request: NextRequest) {
         userId,
         name,
         description || `A new ${framework} project created with Rapidux`,
-        framework as 'nextjs' | 'react' | 'vue'
+        framework as 'nextjs' | 'react' | 'vue',
+        template // 传递模板ID
       );
 
       return NextResponse.json({ 

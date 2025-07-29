@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { FilesTab } from './files-tab';
 import { LayersTab } from './layers-tab';
 import { ActiveTab } from '../types';
+import { LayerInfo } from '../types/layers';
 
 interface LeftSidebarProps {
   activeTab: ActiveTab;
@@ -14,6 +15,7 @@ interface LeftSidebarProps {
   setSelectedComponent: (component: string) => void;
   selectedLayer: string;
   setSelectedLayer: (layer: string) => void;
+  canvasLayers: LayerInfo[];
 }
 
 export function LeftSidebar({
@@ -25,9 +27,10 @@ export function LeftSidebar({
   setSelectedComponent,
   selectedLayer,
   setSelectedLayer,
+  canvasLayers,
 }: LeftSidebarProps) {
   return (
-    <aside className="w-72 bg-card/30 border-r">
+    <aside className="h-full bg-card/30 border-r flex flex-col">
       <ScrollArea className="h-full">
         <div className="p-4 space-y-4">
           {/* Tabs */}
@@ -69,6 +72,7 @@ export function LeftSidebar({
               setSelectedPage={setSelectedPage}
               setSelectedComponent={setSelectedComponent}
               selectedPage={selectedPage}
+              canvasLayers={canvasLayers}
             />
           )}
         </div>

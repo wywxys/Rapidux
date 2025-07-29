@@ -1,0 +1,13 @@
+{
+  "id": "tech-startup-demo",
+  "name": "Tech Startup",
+  "description": "A sleek and modern tech startup website with gradients and animations",
+  "framework": "next",
+  "status": "active",
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "path": "user-projects/demo/tech-startup",
+  "tags": ["tech", "startup", "modern", "gradients"],
+  "author": "demo",
+  "isTemplate": true
+}

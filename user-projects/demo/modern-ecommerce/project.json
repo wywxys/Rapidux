@@ -1,0 +1,13 @@
+{
+  "id": "modern-ecommerce-demo",
+  "name": "Modern E-commerce",
+  "description": "A clean and modern e-commerce website with minimalist design",
+  "framework": "next",
+  "status": "active",
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "path": "user-projects/demo/modern-ecommerce",
+  "tags": ["ecommerce", "modern", "minimalist"],
+  "author": "demo",
+  "isTemplate": true
+}

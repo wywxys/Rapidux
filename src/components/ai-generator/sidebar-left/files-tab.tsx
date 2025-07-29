@@ -1,6 +1,7 @@
 import { Plus, Home, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCallback } from 'react';
 
 interface FilesTabProps {
   selectedPage: string;
@@ -17,6 +18,20 @@ export function FilesTab({
   setSelectedComponent,
   setSelectedLayer,
 }: FilesTabProps) {
+  // Use useCallback to prevent creating new functions on every render
+  const handlePageSelect = useCallback((page: string) => {
+    // Batch state updates using React's automatic batching
+    setSelectedPage(page);
+    setSelectedComponent('');
+    setSelectedLayer('');
+  }, [setSelectedPage, setSelectedComponent, setSelectedLayer]);
+
+  const handleComponentSelect = useCallback((component: string) => {
+    // Batch state updates using React's automatic batching
+    setSelectedComponent(component);
+    setSelectedPage('');
+    setSelectedLayer('');
+  }, [setSelectedComponent, setSelectedPage, setSelectedLayer]);
   return (
     <>
       {/* Pages Section */}
@@ -25,7 +40,15 @@ export function FilesTab({
           <h2 className="text-sm font-semibold">Pages</h2>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Add page functionality here
+                }}
+              >
                 <Plus className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
@@ -41,11 +64,7 @@ export function FilesTab({
                 ? 'bg-primary text-primary-foreground' 
                 : 'hover:bg-accent'
             }`}
-            onClick={() => {
-              setSelectedPage('home');
-              setSelectedComponent(''); // 清空组件选择
-              setSelectedLayer(''); // 清空层级选择
-            }}
+            onClick={() => handlePageSelect('home')}
           >
             <Home className={`h-4 w-4 ${selectedPage === 'home' ? '' : 'text-muted-foreground'}`} />
             <span className="text-sm">Home</span>
@@ -56,11 +75,7 @@ export function FilesTab({
                 ? 'bg-primary text-primary-foreground' 
                 : 'hover:bg-accent'
             }`}
-            onClick={() => {
-              setSelectedPage('settings');
-              setSelectedComponent(''); // 清空组件选择
-              setSelectedLayer(''); // 清空层级选择
-            }}
+            onClick={() => handlePageSelect('settings')}
           >
             <FileText className={`h-4 w-4 ${selectedPage === 'settings' ? '' : 'text-muted-foreground'}`} />
             <span className="text-sm">/settings</span>
@@ -74,7 +89,15 @@ export function FilesTab({
           <h2 className="text-sm font-semibold">Components</h2>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 w-6 p-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Add component functionality here
+                }}
+              >
                 <Plus className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
@@ -99,11 +122,7 @@ export function FilesTab({
                   ? 'bg-primary text-primary-foreground' 
                   : 'hover:bg-accent'
               }`}
-              onClick={() => {
-                setSelectedComponent(component);
-                setSelectedPage(''); // 清空页面选择
-                setSelectedLayer(''); // 清空层选择
-              }}
+              onClick={() => handleComponentSelect(component)}
             >
               <div className={`h-4 w-4 rounded-sm flex items-center justify-center ${
                 selectedComponent === component 

@@ -113,11 +113,14 @@ function SampleComponent() {
     
     // 显示成功提示，带有撤销选项
     setTimeout(() => {
-      toast.success("Settings saved successfully", {
-        description: "Your preferences have been updated",
-        action: {
-          label: "Undo",
-          onClick: () => undoSettings(),
+      toast.success("设置已保存", {
+        description: "您的偏好设置已更新",
+        position: "top-center",
+        duration: 3000,
+        style: {
+          border: "1px solid #10b981",
+          backgroundColor: "#f0fdf4",
+          color: "#065f46",
         },
       });
     }, 200);
@@ -135,8 +138,15 @@ function SampleComponent() {
     setEnablePrettierOnSave(previousSettings.enablePrettierOnSave);
     
     // 显示撤销确认提示
-    toast.info("Settings restored", {
-      description: "Your preferences have been reverted to the previous state",
+    toast.info("设置已恢复", {
+      description: "您的偏好设置已恢复到之前的状态",
+      position: "top-center",
+      duration: 4000,
+      style: {
+        border: "1px solid #3b82f6",
+        backgroundColor: "#eff6ff",
+        color: "#1e40af",
+      },
     });
   };
 
@@ -145,14 +155,14 @@ function SampleComponent() {
     // 这里可以添加实际的保存逻辑，比如保存到localStorage或发送到服务器
     // 目前只显示提示信息
     
-    toast.success("Saved", {
-      description: "All changes saved",
-      action: {
-        label: "View Project",
-        onClick: () => {
-          // 可以添加查看项目的逻辑
-          console.log("View project clicked");
-        },
+    toast.success("已保存", {
+      description: "所有更改已保存",
+      position: "top-center", 
+      duration: 3000,
+      style: {
+        border: "1px solid #10b981",
+        backgroundColor: "#f0fdf4",
+        color: "#065f46",
       },
     });
   };

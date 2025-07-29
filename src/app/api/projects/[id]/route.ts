@@ -32,7 +32,7 @@ let mockProjects: any[] = [
 // 获取单个项目详情
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -41,10 +41,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const projectId = params.id;
+    const { id: projectId } = await params;
     
     // 首先尝试从真实项目中查找
-    let project = RealProjectService.getProjectById(projectId);
+    let project = await RealProjectService.getProjectById(projectId);
     
     // 如果没找到，从模拟数据中查找
     if (!project) {
@@ -86,7 +86,7 @@ export async function GET(
 // 更新项目
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -95,7 +95,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const project = RealProjectService.getProjectById(params.id);
+    const { id: projectId } = await params;
+    const project = await RealProjectService.getProjectById(projectId);
     
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -114,7 +115,7 @@ export async function PUT(
     if (description) updates.description = description;
     if (status) updates.status = status;
 
-    const updatedProject = RealProjectService.updateProject(params.id, updates);
+    const updatedProject = RealProjectService.updateProject(projectId, updates);
     
     if (!updatedProject) {
       return NextResponse.json({ error: 'Failed to update project' }, { status: 400 });
@@ -139,7 +140,7 @@ export async function PUT(
 // 删除项目
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -148,7 +149,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const project = RealProjectService.getProjectById(params.id);
+    const { id: projectId } = await params;
+    const project = await RealProjectService.getProjectById(projectId);
     
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -160,7 +162,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const success = await RealProjectService.deleteProject(params.id);
+    const success = await RealProjectService.deleteProject(projectId);
     
     if (!success) {
       return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
