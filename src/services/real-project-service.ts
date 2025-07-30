@@ -82,7 +82,7 @@ export class RealProjectService {
     }
   }
 
-  // 保存项目元数据
+  // Save project metadata
   static saveProjectMetadata(metadata: ProjectMetadata): void {
     if (!isServer) {
       throw new Error('This operation can only be performed on the server');
@@ -349,7 +349,7 @@ export class RealProjectService {
         framework
       };
 
-      // 保存到元数据
+      // Save to metadata
       const metadata = this.getProjectMetadata();
       metadata.projects.push(newProject);
       this.saveProjectMetadata(metadata);

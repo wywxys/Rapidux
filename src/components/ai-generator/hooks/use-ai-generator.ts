@@ -95,9 +95,9 @@ function SampleComponent() {
     navigator.clipboard.writeText(codeToCopy);
   };
 
-  // 保存设置
+  // Save settings
   const saveSettings = () => {
-    // 保存当前设置作为之前的状态
+    // Save current settings as previous state
     setPreviousSettings({
       autoSaveCode,
       showLineNumbers,
@@ -108,27 +108,20 @@ function SampleComponent() {
       enablePrettierOnSave
     });
     
-    // 先关闭设置面板
+    // Close settings panel first
     setShowSettingsSheet(false);
     
-    // 显示成功提示，带有撤销选项
+    // Show success message with undo option
     setTimeout(() => {
-      toast.success("设置已保存", {
-        description: "您的偏好设置已更新",
-        position: "top-center",
+      toast.success("Settings saved - Your preferences have been updated", {
         duration: 3000,
-        style: {
-          border: "1px solid #10b981",
-          backgroundColor: "#f0fdf4",
-          color: "#065f46",
-        },
       });
     }, 200);
   };
 
-  // 撤销设置
+  // Undo settings
   const undoSettings = () => {
-    // 恢复之前的设置
+    // Restore previous settings
     setAutoSaveCode(previousSettings.autoSaveCode);
     setShowLineNumbers(previousSettings.showLineNumbers);
     setEnableCodeFormatting(previousSettings.enableCodeFormatting);
@@ -138,36 +131,22 @@ function SampleComponent() {
     setEnablePrettierOnSave(previousSettings.enablePrettierOnSave);
     
     // 显示撤销确认提示
-    toast.info("设置已恢复", {
-      description: "您的偏好设置已恢复到之前的状态",
-      position: "top-center",
+    toast.info("Settings restored - Your preferences have been restored to the previous state", {
       duration: 4000,
-      style: {
-        border: "1px solid #3b82f6",
-        backgroundColor: "#eff6ff",
-        color: "#1e40af",
-      },
     });
   };
 
-  // 保存画布更改
+  // Save canvas changes
   const saveCanvasChanges = () => {
-    // 这里可以添加实际的保存逻辑，比如保存到localStorage或发送到服务器
-    // 目前只显示提示信息
+    // Here you can add actual save logic, such as saving to localStorage or sending to server
+    // Currently only shows notification
     
-    toast.success("已保存", {
-      description: "所有更改已保存",
-      position: "top-center", 
+    toast.success("Saved - All changes have been saved", {
       duration: 3000,
-      style: {
-        border: "1px solid #10b981",
-        backgroundColor: "#f0fdf4",
-        color: "#065f46",
-      },
     });
   };
 
-  // 撤销操作
+  // Undo operation
   const undoAction = () => {
     toast.info("Undo", {
       description: "Previous action has been undone",

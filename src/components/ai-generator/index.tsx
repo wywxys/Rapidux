@@ -100,12 +100,12 @@ export function AIComponentGenerator() {
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const modifierKey = isMac ? event.metaKey : event.ctrlKey;
       
-      // Ctrl/Cmd+S - 保存
+      // Ctrl/Cmd+S - Save
       if (modifierKey && event.key === 's') {
         event.preventDefault();
         state.saveCanvasChanges();
       }
-      // Ctrl/Cmd+Z - 撤销
+      // Ctrl/Cmd+Z - Undo
       else if (modifierKey && event.key === 'z') {
         event.preventDefault();
         state.undoAction();
