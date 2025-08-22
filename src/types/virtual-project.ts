@@ -9,6 +9,21 @@ export interface Project {
   path: string; // 项目在文件系统中的路径
   status: 'active' | 'archived';
   framework: 'nextjs' | 'react' | 'vue';
+  type: 'component' | 'page' | 'layout';
+  files: ProjectFile[];
+  config?: any;
+}
+
+export interface ProjectFile {
+  id: string;
+  name: string;
+  path: string;
+  content: string;
+  type: 'tsx' | 'css' | 'json' | 'md';
+  isGenerated: boolean;
+  lastModified: Date;
+  dependencies?: string[];
+  exports?: string[];
 }
 
 // 项目创建请求类型
@@ -52,18 +67,13 @@ export function generateProjectId(): string {
   return `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// 生成唯一项目ID
-export function generateProjectId(): string {
-  return `proj_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
-
 // 验证项目名称唯一性 (移动到VirtualProjectService中)
 // export function validateProjectName(userId: string, projectName: string, excludeId?: string): boolean {
 
 // 默认项目模板
 export const defaultProjectTemplate: Omit<Project, 'id' | 'userId' | 'name' | 'description' | 'createdAt' | 'updatedAt'> = {
-  thumbnail: undefined,
-  status: 'draft',
+  path: '/projects/default',
+  status: 'active',
   type: 'component',
   framework: 'nextjs',
   files: [
@@ -256,8 +266,8 @@ export const sampleProjects: Project[] = [
     userId: '1', // Admin User
     createdAt: new Date('2024-12-01'),
     updatedAt: new Date('2024-12-01'),
-    thumbnail: '/api/projects/sample-1/thumbnail',
-    status: 'published',
+    path: '/projects/sample-1',
+    status: 'active',
     type: 'component',
     framework: 'nextjs',
     files: [

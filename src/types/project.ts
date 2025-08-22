@@ -9,7 +9,6 @@ export interface Project {
   path: string; // 项目在文件系统中的路径
   status: 'active' | 'archived';
   framework: 'nextjs' | 'react' | 'vue';
-}
   type: 'component' | 'page' | 'layout';
   // 项目文件结构
   files: ProjectFile[];
@@ -34,8 +33,9 @@ export const sampleProjects: Project[] = [
     userId: '1', // Admin User
     createdAt: new Date('2024-12-01'),
     updatedAt: new Date('2024-12-01'),
-    thumbnail: '/api/projects/sample-1/thumbnail',
-    status: 'published',
+    path: '/projects/ai-component-library',
+    status: 'active',
+    framework: 'react',
     type: 'component',
     files: [
       {

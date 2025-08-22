@@ -52,8 +52,8 @@ export function UserMenu() {
         <DropdownMenuLabel>
           <div className="flex items-center space-x-3">
             <UserAvatar 
-              name={session?.user?.name}
-              email={session?.user?.email}
+              name={session?.user?.name || undefined}
+              email={session?.user?.email || undefined}
             />
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
