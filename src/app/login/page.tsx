@@ -28,23 +28,30 @@ export default function LoginPage() {
     setLoadingProvider('credentials');
 
     try {
+      console.log('Attempting sign in with:', { email: formData.email });
+      
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
         redirect: false,
       });
 
+      console.log('Sign in result:', { ok: result?.ok, error: result?.error, status: result?.status });
+
       if (result?.ok) {
         const session = await getSession();
+        console.log('Session after sign in:', { hasSession: !!session, userEmail: session?.user?.email });
         if (session) {
           router.push('/dashboard');
+        } else {
+          setError('会话创建失败，请重试');
         }
       } else {
-        setError('邮箱或密码错误，请重试');
+        setError(`登录失败: ${result?.error || '邮箱或密码错误'}`);
       }
     } catch (error) {
-      setError('登录失败，请重试');
       console.error('Credentials sign in failed:', error);
+      setError('登录失败，请重试');
     } finally {
       setIsLoading(false);
       setLoadingProvider(null);

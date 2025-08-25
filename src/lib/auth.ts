@@ -3,6 +3,23 @@ import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
+// 环境变量验证
+if (process.env.NODE_ENV === 'production' && !process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET must be set in production');
+}
+
+if (process.env.NODE_ENV === 'production' && !process.env.NEXTAUTH_URL) {
+  throw new Error('NEXTAUTH_URL must be set in production');
+}
+
+console.log('Auth configuration:', {
+  nodeEnv: process.env.NODE_ENV,
+  hasSecret: !!process.env.NEXTAUTH_SECRET,
+  nextAuthUrl: process.env.NEXTAUTH_URL,
+  hasGoogleId: !!process.env.GOOGLE_CLIENT_ID,
+  hasGithubId: !!process.env.GITHUB_ID,
+});
+
 // 简单的管理员账户配置
 const adminUsers = [
   {
@@ -32,7 +49,14 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
+        console.log('NextAuth authorize called with:', { 
+          email: credentials?.email, 
+          hasPassword: !!credentials?.password,
+          nodeEnv: process.env.NODE_ENV 
+        });
+
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing credentials');
           return null;
         }
 
@@ -41,6 +65,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (user) {
+          console.log('User found:', { id: user.id, email: user.email, name: user.name });
           return {
             id: user.id,
             email: user.email,
@@ -49,6 +74,7 @@ export const authOptions: NextAuthOptions = {
           };
         }
         
+        console.log('User not found for email:', credentials.email);
         return null;
       },
     }),
@@ -65,12 +91,17 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     jwt: async ({ token, account, user }) => {
       if (account && user) {
+        console.log('JWT callback - new sign in:', { userId: user.id, provider: account.provider });
         token.accessToken = account.access_token;
         token.userId = user.id;
       }
       return token;
     },
     session: async ({ session, token }) => {
+      console.log('Session callback:', { 
+        userId: token.userId || token.sub,
+        email: session.user?.email 
+      });
       return {
         ...session,
         user: {
@@ -83,10 +114,11 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-development',
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export default NextAuth(authOptions);
